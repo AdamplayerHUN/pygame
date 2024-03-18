@@ -1,6 +1,6 @@
 import pygame,math,random
 pygame.init()
-G=0.005
+G=0.069
 height=700
 width=1300
 fps=300
