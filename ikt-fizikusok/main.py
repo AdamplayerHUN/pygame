@@ -316,8 +316,10 @@ while running:
             for item in data["fizikusok"]:
                 if str(searchinput.lower()) in item["Név"].lower():
                     found = True
+                    break
                 if str(searchinput.lower()) in str(item["Születési idő"].lower()):
                     found = True
+                    break
             if found:
                 print(item)
                 index = data["fizikusok"].index(item)
