@@ -1,8 +1,8 @@
 import pygame,math,random
 pygame.init()
 G = 0.005
-height = 700
-width = 1300
+height = 1080
+width = 1920
 fps = 300
 frame = 0.1
 disp= pygame.display.set_mode((width,height))
@@ -18,11 +18,7 @@ def create_rect(width, height, border, color, border_color):
         pygame.draw.rect(surf, border_color, (border-i, border-i, width+5, height+5), 1)
     return surf
 
-
-#pygame.draw.circle(disp,(255,0,255),(400,300),5,0)
-
 disp.fill((0,0,0))
-#pygame.draw.circle(disp,(255,255,255),[400,300],10,0)
 pygame.display.update()
 planets = list()
 MaxMass = 10000
@@ -74,35 +70,35 @@ focusinfo = pygame.font.SysFont("Arial", 30).render("F: Fókus (kurzorral)", Tru
 focusinfo_rect = focusinfo.get_rect(topleft=(5, height-200))
 
 option_title = pygame.font.SysFont("Arial", 30).render("Beállítások", True, (255, 255, 255))
-option_title_rect = option_title.get_rect(topleft=(1110, 90))
+option_title_rect = option_title.get_rect(topleft=(width-190, 90))
 option_strength = pygame.font.SysFont("Arial", 25).render("Erősség", True, (255, 255, 255))
-option_strength_rect = option_strength.get_rect(topleft=(1160, 130))
+option_strength_rect = option_strength.get_rect(topleft=(width-140, 130))
 option_strength_val = pygame.font.SysFont("Arial", 25).render("10%", True, (255, 255, 255))
-option_strength_val_rect = option_strength_val.get_rect(topleft=(1175, 160))
+option_strength_val_rect = option_strength_val.get_rect(topleft=(width-125, 160))
 option_strength_minus = pygame.font.SysFont("Arial", 25).render("-", True, (255, 255, 255))
-option_strength_minus_rect = option_strength_minus.get_rect(topleft=(1120, 160))
+option_strength_minus_rect = option_strength_minus.get_rect(topleft=(width-170, 160))
 option_strength_plus = pygame.font.SysFont("Arial", 25).render("+", True, (255, 255, 255))
 option_strength_plus_rect = option_strength_plus.get_rect(topleft=(width-50, 160))
 option_mass = pygame.font.SysFont("Arial", 25).render("Tömeg", True, (255, 255, 255))
-option_mass_rect = option_mass.get_rect(topleft=(1160, 200))
+option_mass_rect = option_mass.get_rect(topleft=(width-140, 200))
 option_mass_val = pygame.font.SysFont("Arial", 25).render("10%", True, (255, 255, 255))
-option_mass_val_rect = option_mass_val.get_rect(topleft=(1175, 230))
+option_mass_val_rect = option_mass_val.get_rect(topleft=(width-125, 230))
 option_mass_minus = pygame.font.SysFont("Arial", 25).render("-", True, (255, 255, 255))
-option_mass_minus_rect = option_mass_minus.get_rect(topleft=(1120, 230))
+option_mass_minus_rect = option_mass_minus.get_rect(topleft=(width-170, 230))
 option_mass_plus = pygame.font.SysFont("Arial", 25).render("+", True, (255, 255, 255))
 option_mass_plus_rect = option_mass_plus.get_rect(topleft=(width-50, 230))
 option_diameter = pygame.font.SysFont("Arial", 25).render("Átmérő", True, (255, 255, 255))
-option_diameter_rect = option_diameter.get_rect(topleft=(1160, 263))
+option_diameter_rect = option_diameter.get_rect(topleft=(width-140, 263))
 option_diameter_val = pygame.font.SysFont("Arial", 25).render("20%", True, (255, 255, 255))
-option_diameter_val_rect = option_diameter_val.get_rect(topleft=(1175, 290))
+option_diameter_val_rect = option_diameter_val.get_rect(topleft=(width-125, 290))
 option_diameter_minus = pygame.font.SysFont("Arial", 25).render("-", True, (255, 255, 255))
-option_diameter_minus_rect = option_diameter_minus.get_rect(topleft=(1120, 290))
+option_diameter_minus_rect = option_diameter_minus.get_rect(topleft=(width-170, 290))
 option_diameter_plus = pygame.font.SysFont("Arial", 25).render("+", True, (255, 255, 255))
 option_diameter_plus_rect = option_diameter_plus.get_rect(topleft=(width-50, 290))
 option_color = pygame.font.SysFont("Arial", 25).render("Szín", True, (255, 255, 255))
-option_color_rect = option_color.get_rect(topleft=(1170, 330))
+option_color_rect = option_color.get_rect(topleft=(width-130, 330))
 option_color_decerase = pygame.font.SysFont("Arial", 25).render("<", True, (255, 255, 255))
-option_color_decerase_rect = option_color_decerase.get_rect(topleft=(1120, 330))
+option_color_decerase_rect = option_color_decerase.get_rect(topleft=(width-170, 330))
 option_color_increase = pygame.font.SysFont("Arial", 25).render(">", True, (255, 255, 255))
 option_color_increase_rect = option_color_increase.get_rect(topleft=(width-50, 330))
 
@@ -312,7 +308,7 @@ while state:
 
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if 1268 < pygame.mouse.get_pos()[0] < width and 88 < pygame.mouse.get_pos()[1] < 231:
+            if width-32 < pygame.mouse.get_pos()[0] < width and 88 < pygame.mouse.get_pos()[1] < 231:
                 settings = not settings
             elif not settings:
                 drag = True
@@ -371,37 +367,73 @@ while state:
         focused = False
 
     if keys[pygame.K_DOWN] and not focused:
-        for p in planets:
-            p.y += 1
-        for i in points:
-            i[1] -= 1
-        for i in stars:
-            i[1] -= 0.25
-        totaly -= 1
+        if keys[pygame.K_LSHIFT]:
+            for p in planets:
+                p.y += 8
+            for i in points:
+                i[1] -= 8
+            for i in stars:
+                i[1] -= 2
+            totaly -= 8
+        else:
+            for p in planets:
+                p.y += 1
+            for i in points:
+                i[1] -= 1
+            for i in stars:
+                i[1] -= 0.25
+            totaly -= 1
     if keys[pygame.K_UP] and not focused:
-        for p in planets:
-            p.y -= 1
-        for i in points:
-            i[1] += 1
-        for i in stars:
-            i[1] += 0.25
-        totaly += 1
+        if keys[pygame.K_LSHIFT]:
+            for p in planets:
+                p.y -= 8
+            for i in points:
+                i[1] += 8
+            for i in stars:
+                i[1] += 2
+            totaly += 8
+        else:
+            for p in planets:
+                p.y -= 1
+            for i in points:
+                i[1] += 1
+            for i in stars:
+                i[1] += 0.25
+            totaly += 1
     if keys[pygame.K_LEFT] and not focused:
-        for p in planets:
-            p.x += 1
-        for i in points:
-            i[0] += 1
-        for i in stars:
-            i[0] += 0.25
-        totalx -= 1
+        if keys[pygame.K_LSHIFT]:
+            for p in planets:
+                p.x += 8
+            for i in points:
+                i[0] += 8
+            for i in stars:
+                i[0] += 2
+            totalx -= 8
+        else:
+            for p in planets:
+                p.x += 1
+            for i in points:
+                i[0] += 1
+            for i in stars:
+                i[0] += 0.25
+            totalx -= 1
     if keys[pygame.K_RIGHT] and not focused:
-        for p in planets:
-            p.x -= 1
-        for i in points:
-            i[0] -= 1 
-        for i in stars:
-            i[0] -= 0.25
-        totalx += 1
+        if keys[pygame.K_LSHIFT]:
+            for p in planets:
+                p.x -= 8
+            for i in points:
+                i[0] -= 8
+            for i in stars:
+                i[0] -= 2
+            totalx += 8
+        else:
+            for p in planets:
+                p.x -= 1
+            for i in points:
+                i[0] -= 1 
+            for i in stars:
+                i[0] -= 0.25
+            totalx += 1
 
     if focused:
         if focusobj.x > width/2:
@@ -471,7 +503,7 @@ while state:
             position2 = pygame.mouse.get_pos()
             pygame.draw.line(disp, (255, 255, 255), pos1, position2, 1)
         if settings:
-            disp.blit(create_rect(200, 300, 5, (0, 0, 0), (255, 255, 255)), (1100, 88))
+            disp.blit(create_rect(200, 300, 5, (0, 0, 0), (255, 255, 255)), (width-200, 88))
             disp.blit(option_title, option_title_rect)
             disp.blit(option_strength, option_strength_rect)
             disp.blit(option_strength_val, option_strength_val_rect)
@@ -489,8 +521,8 @@ while state:
             disp.blit(option_color_decerase, option_color_decerase_rect)
             disp.blit(option_color_increase, option_color_increase_rect)
         else:
-            disp.blit(create_rect(32, 148, 5, (0, 0, 0), (255, 255, 255)), (1269, 88))
-            pygame.draw.line(disp, (255, 255, 255), (1289, 109), (1289, 224), 3)
+            disp.blit(create_rect(32, 148, 5, (0, 0, 0), (255, 255, 255)), (width-31, 88))
+            pygame.draw.line(disp, (255, 255, 255), (width-11, 109), (width-11, 224), 3)
 
         for g in planets:
             g.draw()
