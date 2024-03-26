@@ -1,10 +1,10 @@
 import pygame,math,random
 pygame.init()
-G=0.005
-height=700
-width=1300
-fps=300
-frame=0.1
+G = 0.005
+height = 700
+width = 1300
+fps = 300
+frame = 0.1
 disp= pygame.display.set_mode((width,height))
 pygame.display.update()
 pygame.display.set_caption("Naprendszer szimuláció")
@@ -24,18 +24,18 @@ def create_rect(width, height, border, color, border_color):
 disp.fill((0,0,0))
 #pygame.draw.circle(disp,(255,255,255),[400,300],10,0)
 pygame.display.update()
-planets=list()
-MaxMass=10000
-MinMass=200
-MassScale=(MinMass/MaxMass)/30
+planets = list()
+MaxMass = 10000
+MinMass = 200
+MassScale = (MinMass / MaxMass) / 30
 class planet():
     def __init__(self,x,y,mass,diameter,color=(255,255,255)):
-        self.x=x
-        self.y=y
-        self.m=mass
-        self.d=diameter
-        self.dx=0
-        self.dy=0
+        self.x = x
+        self.y = y
+        self.m = mass
+        self.d = diameter
+        self.dx = 0
+        self.dy = 0
 #         self.density=mass/(math.pi*((diameter/2)**2))
 #         self.r=int(self.density*MassScale*255)
 #         self.g=int(((self.density*MassScale))*255)
@@ -45,8 +45,8 @@ class planet():
         self.color=color
         #print(float(self.density*MassScale))
     def draw(self):
-        self.x+=self.dx*frame*10
-        self.y+=self.dy*frame*10
+        self.x += self.dx * frame * 10
+        self.y += self.dy * frame * 10
         
         pygame.draw.circle(disp,self.color,(self.x+self.dx,height-self.y+self.dy),self.d,0)
 
@@ -58,18 +58,20 @@ earthorbits = 0
 moonorbits = 0
 
 eorbittxt = pygame.font.SysFont("Arial", 30).render("Föld ciklusok: "+str(earthorbits/10), True, (255, 255, 255))
-eorbittxt_rect = eorbittxt.get_rect(topleft=(0, 0))
+eorbittxt_rect = eorbittxt.get_rect(topleft=(5, 0))
 morbitstxt = pygame.font.SysFont("Arial", 30).render("Hold ciklusok: "+str(moonorbits/10), True, (255, 255, 255))
-morbitstxt_rect = morbitstxt.get_rect(topleft=(0, 30))
+morbitstxt_rect = morbitstxt.get_rect(topleft=(5, 30))
 
 clearinfo = pygame.font.SysFont("Arial", 30).render("C: Pontok törlése (lag miatt)", True, (255, 255, 255))
-clearinfo_rect = clearinfo.get_rect(topleft=(0, height-40))
+clearinfo_rect = clearinfo.get_rect(topleft=(5, height-40))
 disableinfo = pygame.font.SysFont("Arial", 30).render("D: Pontrajzolás Ki/Be", True, (255, 255, 255))
-disableinfo_rect = disableinfo.get_rect(topleft=(0, height-80))
+disableinfo_rect = disableinfo.get_rect(topleft=(5, height-80))
 resetinfo = pygame.font.SysFont("Arial", 30).render("R: Visszaállítás", True, (255, 255, 255))
-resetinfo_rect = resetinfo.get_rect(topleft=(0, height-120))
+resetinfo_rect = resetinfo.get_rect(topleft=(5, height-120))
 pauseinfo = pygame.font.SysFont("Arial", 30).render("P: Szünet", True, (255, 255, 255))
-pauseinfo_rect = pauseinfo.get_rect(topleft=(0, height-160))
+pauseinfo_rect = pauseinfo.get_rect(topleft=(5, height-160))
+focusinfo = pygame.font.SysFont("Arial", 30).render("F: Fókus (kurzorral)", True, (255, 255, 255))
+focusinfo_rect = focusinfo.get_rect(topleft=(5, height-200))
 
 option_title = pygame.font.SysFont("Arial", 30).render("Beállítások", True, (255, 255, 255))
 option_title_rect = option_title.get_rect(topleft=(1110, 90))
@@ -109,10 +111,20 @@ diameter = 20
 mass = 10
 color = (255, 255, 255)
 colorindex = 0
-colors = [(255, 255, 255), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)]
+colors = [
+    (255, 255, 255), 
+    (255, 0, 0), 
+    (0, 255, 0), 
+    (0, 0, 255), 
+    (255, 255, 0), 
+    (255, 0, 255), 
+    (0, 255, 255),
+    (50, 50, 50)
+    ]
 
 points = []
 
+'''
 earth=planet(width/2-200,height/2,1000,5,(0, 150, 100))
 earth.dy=3.5
 moon=planet(width/2-220,height/2,250,2,(100, 100, 100))
@@ -123,13 +135,32 @@ sun.dy=-0.1
 planets.append(earth)
 planets.append(sun)
 planets.append(moon)
+'''
+
+#three body problem
+planet1 = planet(width/2-100, height/2+25, 5000, 10, (255, 0, 0))
+planet1.dy = 1
+planet1.dx = 1
+planet2 = planet(width/2, height/2, 5000, 10, (0, 255, 0))
+planet2.dy = -1
+planet2.dx = -1
+planet3 = planet(width/2+100, height/2-25, 5000, 10, (0, 0, 255))
+planet3.dx = 1
+planet3.dy = 1
+planets.append(planet1)
+planets.append(planet2)
+planets.append(planet3)
+
 
 default_mass=100000 * (mass / 100)
 default_diameter=50 * (diameter / 100)
 default_color=(255,255,255)
 default_strength=30 * (strenght / 100)
 
-
+stars = []
+for i in range(10000):
+    star = [random.randint(-5000, 5000), random.randint(-5000, 5000)]
+    stars.append(star)
 
 def R_area(p,q):
     area = (p.d**2/4)*math.pi+(q.d**2/4)*math.pi
@@ -142,7 +173,7 @@ def collision(p,q):
     #y=cy/mass
     dx=(((p.dx*p.m)+(q.dx*q.m))/mass)
     dy=((p.dy*p.m)+(q.dy*q.m))/mass
-    
+
     d=math.sqrt(R_area(p,q)*4/math.pi)
 
 #     planets.remove(p)
@@ -152,6 +183,7 @@ def collision(p,q):
     np.dx=dx
     np.dy=dy
     planets.append(np)
+
     #np.draw()
     
 def ds(p,q):
@@ -203,11 +235,17 @@ drag = False
 settings = False
 pause = False
 pressede = False
-
+focused = False
+focusobj = None
+n = 0
+totalx = 0
+totaly = 0
 while state:
-    count+=1
+    if not pause:
+        count+=1
     #no of frames to skip
     c=count%10
+    c2 = count%50
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             state = False
@@ -240,6 +278,38 @@ while state:
                 drag = False
             if event.key == pygame.K_p:
                 pause = not pause
+            if event.key == pygame.K_f:
+                if not focused:
+                    for p in planets:
+                        px = p.x - p.d
+                        py = p.y - p.d
+                        w = p.d*2
+                        h = p.d*2
+                        p_rect = pygame.Rect(px, py, w, h)
+                        print(p_rect)
+                        if p_rect.collidepoint((pygame.mouse.get_pos()[0], -pygame.mouse.get_pos()[1] + height)):
+                            print(f"Focus: {p}")
+                            focused = True
+                            focusobj = p
+                    print(pygame.mouse.get_pos()[0] + totalx, -pygame.mouse.get_pos()[1] + height + totaly)
+                else:
+                    focused = False
+                #planets.append(planet(pygame.mouse.get_pos()[0], -pygame.mouse.get_pos()[1] + height, 10, 10))
+            if event.key == pygame.K_PERIOD:
+                if len(planets)-1 <= n:
+                    n = 0
+                else:
+                    n += 1
+                focusobj = planets[n]
+                focused = True
+            if event.key == pygame.K_COMMA:
+                if n <= 0:
+                    n = len(planets)-1
+                else:
+                    n -= 1
+                focusobj = planets[n]
+                focused = True
+
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if 1268 < pygame.mouse.get_pos()[0] < width and 88 < pygame.mouse.get_pos()[1] < 231:
@@ -253,13 +323,19 @@ while state:
             if option_strength_plus_rect.collidepoint(pygame.mouse.get_pos()) and strenght < 100:
                 strenght += 1
                 option_strength_val = pygame.font.SysFont("Arial", 25).render(str(strenght)+"%", True, (255, 255, 255))
-            if option_mass_minus_rect.collidepoint(pygame.mouse.get_pos()) and mass > 0:
-                mass -= 1
-                option_mass_val = pygame.font.SysFont("Arial", 25).render(str(mass)+"%", True, (255, 255, 255))
-            if option_mass_plus_rect.collidepoint(pygame.mouse.get_pos()) and mass < 100:
-                mass += 1
-                option_mass_val = pygame.font.SysFont("Arial", 25).render(str(mass)+"%", True, (255, 255, 255))
-            if option_diameter_minus_rect.collidepoint(pygame.mouse.get_pos()) and diameter > 0:
+            if option_mass_minus_rect.collidepoint(pygame.mouse.get_pos()):
+                if mass > 1:
+                    mass -= 1
+                elif 1 >= mass > 0.2:
+                    mass -= 0.1
+                option_mass_val = pygame.font.SysFont("Arial", 25).render(str(round(mass, 1))+"%", True, (255, 255, 255))
+            if option_mass_plus_rect.collidepoint(pygame.mouse.get_pos()):
+                if 1 <= mass < 100:
+                    mass += 1
+                if 1 > mass > 0:
+                    mass += 0.1
+                option_mass_val = pygame.font.SysFont("Arial", 25).render(str(round(mass, 2))+"%", True, (255, 255, 255))
+            if option_diameter_minus_rect.collidepoint(pygame.mouse.get_pos()) and diameter > 1:
                 diameter -= 1
                 option_diameter_val = pygame.font.SysFont("Arial", 25).render(str(diameter)+"%", True, (255, 255, 255))
             if option_diameter_plus_rect.collidepoint(pygame.mouse.get_pos()) and diameter < 100:
@@ -280,38 +356,87 @@ while state:
             
         if event.type == pygame.MOUSEBUTTONUP:
             drag = False
-            if not 1268 < pygame.mouse.get_pos()[0] < width and 88 < pygame.mouse.get_pos()[1] < 231:
+            if not (1268 < pygame.mouse.get_pos()[0] < width and 88 < pygame.mouse.get_pos()[1] < 231):
                 if not settings:
                     pos2 = pygame.mouse.get_pos()
                     newPlanet = planet(pos1[0], -pos1[1]+height, default_mass, default_diameter, default_color)
                     planets.append(newPlanet)
                     newPlanet.dx = ((pos1[0] - pos2[0]) / 30) * default_strength
                     newPlanet.dy = ((pos2[1] - pos1[1]) / 30) * default_strength
-                
-                
+
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_DOWN]:
+    if focusobj not in planets:
+        focused = False
+
+    if keys[pygame.K_DOWN] and not focused:
         for p in planets:
             p.y += 1
         for i in points:
             i[1] -= 1
-    if keys[pygame.K_UP]:
+        for i in stars:
+            i[1] -= 0.25
+        totaly -= 1
+    if keys[pygame.K_UP] and not focused:
         for p in planets:
             p.y -= 1
         for i in points:
             i[1] += 1
-    if keys[pygame.K_LEFT]:
+        for i in stars:
+            i[1] += 0.25
+        totaly += 1
+    if keys[pygame.K_LEFT] and not focused:
         for p in planets:
             p.x += 1
         for i in points:
             i[0] += 1
-    if keys[pygame.K_RIGHT]:
+        for i in stars:
+            i[0] += 0.25
+        totalx -= 1
+    if keys[pygame.K_RIGHT] and not focused:
         for p in planets:
             p.x -= 1
         for i in points:
             i[0] -= 1 
+        for i in stars:
+            i[0] -= 0.25
+        totalx += 1
+
+    if focused:
+        if focusobj.x > width/2:
+            for i in planets:
+                i.x -= 1
+            for i in points:
+                i[0] -= 1
+            for i in stars:
+                i[0] -= 0.25
+            totalx -=1
+        if focusobj.x < width/2:
+            for i in planets:
+                i.x += 1
+            for i in points:
+                i[0] += 1
+            for i in stars:
+                i[0] += 0.25
+            totalx += 1
+        if focusobj.y > height/2:
+            for i in planets:
+                i.y -= 1
+            for i in points:
+                i[1] += 1
+            for i in stars:
+                i[1] += 0.25
+            totaly += 1
+        if focusobj.y < height/2:
+            for i in planets:
+                i.y += 1
+            for i in points:
+                i[1] -= 1
+            for i in stars:
+                i[1] -= 0.25
+            totaly -= 1
+
     #calculating part
     for rp in planets:
         for p in planets:
@@ -319,19 +444,28 @@ while state:
                 comp(rp,p)
             if rp not in planets:
                 break
+
     #drawing part
-    if c ==0:
-        disp.fill((0,0,0))
+    if c == 0:
+        disp.fill((0, 0, 0))
+        for i in stars:
+            pygame.draw.circle(disp, (170, 170, 170), (i[0], i[1]), 1)
+        for dot in points:
+            pygame.draw.circle(disp, (dot[2]), (dot[0], dot[1]), 1)
         eorbittxt = pygame.font.SysFont("Arial", 30).render("Föld ciklusok: "+str(earthorbits/10), True, (255, 255, 255))
-        if earth in planets:
-            disp.blit(eorbittxt, eorbittxt_rect)
-        morbitstxt = pygame.font.SysFont("Arial", 30).render("Hold ciklusok: "+str(moonorbits/10), True, (255, 255, 255))
-        if moon in planets:
-            disp.blit(morbitstxt, morbitstxt_rect)
+        try:
+            if earth in planets:
+                disp.blit(eorbittxt, eorbittxt_rect)
+            morbitstxt = pygame.font.SysFont("Arial", 30).render("Hold ciklusok: "+str(moonorbits/10), True, (255, 255, 255))
+            if moon in planets:
+                disp.blit(morbitstxt, morbitstxt_rect)
+        except:
+            pass
         disp.blit(clearinfo, clearinfo_rect)
         disp.blit(disableinfo, disableinfo_rect)
         disp.blit(resetinfo, resetinfo_rect)
         disp.blit(pauseinfo, pauseinfo_rect)
+        disp.blit(focusinfo, focusinfo_rect)
         option_color = pygame.font.SysFont("Arial", 25).render("Szín", True, default_color)
         if drag:
             position2 = pygame.mouse.get_pos()
@@ -358,25 +492,24 @@ while state:
             disp.blit(create_rect(32, 148, 5, (0, 0, 0), (255, 255, 255)), (1269, 88))
             pygame.draw.line(disp, (255, 255, 255), (1289, 109), (1289, 224), 3)
 
-        if not pause:
-            for g in planets:
-                g.draw()
-        else:
-            for g in planets:
-                pygame.draw.circle(disp, g.color, (g.x, -g.y+height), g.d)
+        for g in planets:
+            g.draw()
     
     for i in planets:
-        if toggledots and not pause:
+        if toggledots and not pause and c2 == 0:
             dotx, doty = i.x, -(i.y)+height
-            points.append([dotx, doty])
-    
-    for dot in points:
-        pygame.draw.circle(disp, (0, 0, 255), (dot[0], dot[1]), 1)
+            points.append([dotx, doty, i.color])
 
-    if sun.x+2 > earth.x > sun.x-2 and earth.dx > sun.dx:
-        earthorbits += 1
-    if earth.x+1 > moon.x > earth.x-1 and moon.dx > earth.dx:
-        moonorbits += 1
+    try:
+        if sun.x+2 > earth.x > sun.x-2 and earth.dx > sun.dx:
+            earthorbits += 1
+        if earth.x+1 > moon.x > earth.x-1 and moon.dx > earth.dx:
+            moonorbits += 1
+    except:
+        pass
+    
+    if len(points) > 1000:
+        points.remove(points[0])
     
     pygame.display.update()
     clock.tick(fps)
