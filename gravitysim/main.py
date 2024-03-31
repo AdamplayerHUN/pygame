@@ -5,7 +5,8 @@ height = 1080
 width = 1920
 fps = 300
 frame = 0.1
-disp= pygame.display.set_mode((width,height))
+disp= pygame.display.set_mode((width,height), pygame.FULLSCREEN)
+width, height = pygame.display.get_surface().get_width(), pygame.display.get_surface().get_height()
 pygame.display.update()
 pygame.display.set_caption("Naprendszer szimuláció")
 clock = pygame.time.Clock()
@@ -28,6 +29,8 @@ class planet():
     def __init__(self,x,y,mass,diameter,color=(255,255,255)):
         self.x = x
         self.y = y
+        self.screenx = x
+        self.screeny = y
         self.m = mass
         self.d = diameter
         self.dx = 0
@@ -43,12 +46,9 @@ class planet():
     def draw(self):
         self.x += self.dx * frame * 10
         self.y += self.dy * frame * 10
+        self.screenx, self.screeny = ((self.x + self.dx - width/2) * zoom) + width/2, ((height - self.y + self.dy - height/2) * zoom) + height/2
         
-        pygame.draw.circle(disp,self.color,(self.x+self.dx,height-self.y+self.dy),self.d,0)
-
-
-
-
+        pygame.draw.circle(disp, self.color, (self.screenx, self.screeny), self.d * zoom, 0)
 
 earthorbits = 0
 moonorbits = 0
@@ -58,6 +58,8 @@ eorbittxt_rect = eorbittxt.get_rect(topleft=(5, 0))
 morbitstxt = pygame.font.SysFont("Arial", 30).render("Hold ciklusok: "+str(moonorbits/10), True, (255, 255, 255))
 morbitstxt_rect = morbitstxt.get_rect(topleft=(5, 30))
 
+infoinfo = pygame.font.SysFont("Arial", 30).render("I: Infó", True, (255, 255, 255))
+infoinfo_rect = infoinfo.get_rect(topleft=(5, height-40))
 clearinfo = pygame.font.SysFont("Arial", 30).render("C: Pontok törlése (lag miatt)", True, (255, 255, 255))
 clearinfo_rect = clearinfo.get_rect(topleft=(5, height-40))
 disableinfo = pygame.font.SysFont("Arial", 30).render("D: Pontrajzolás Ki/Be", True, (255, 255, 255))
@@ -66,8 +68,12 @@ resetinfo = pygame.font.SysFont("Arial", 30).render("R: Visszaállítás", True,
 resetinfo_rect = resetinfo.get_rect(topleft=(5, height-120))
 pauseinfo = pygame.font.SysFont("Arial", 30).render("P: Szünet", True, (255, 255, 255))
 pauseinfo_rect = pauseinfo.get_rect(topleft=(5, height-160))
-focusinfo = pygame.font.SysFont("Arial", 30).render("F: Fókus (kurzorral)", True, (255, 255, 255))
+focusinfo = pygame.font.SysFont("Arial", 30).render("F: Fókusz (kurzorral) - '.' és ',': váltás", True, (255, 255, 255))
 focusinfo_rect = focusinfo.get_rect(topleft=(5, height-200))
+zoominfo = pygame.font.SysFont("Arial", 30).render("T, G: Zoom", True, (255, 255, 255))
+zoominfo_rect = zoominfo.get_rect(topleft=(5, height-240))
+moveinfo = pygame.font.SysFont("Arial", 30).render("(Shift +) Nyilak: Mozgatás", True, (255, 255, 255))
+moveinfo_rect = moveinfo.get_rect(topleft=(5, height-280))
 
 option_title = pygame.font.SysFont("Arial", 30).render("Beállítások", True, (255, 255, 255))
 option_title_rect = option_title.get_rect(topleft=(width-190, 90))
@@ -236,9 +242,9 @@ focusobj = None
 n = 0
 totalx = 0
 totaly = 0
+zoom = 1
 while state:
-    if not pause:
-        count+=1
+    count+=1
     #no of frames to skip
     c=count%10
     c2 = count%50
@@ -269,7 +275,8 @@ while state:
                 drag = False
             if event.key == pygame.K_e:
                 pos1 = pygame.mouse.get_pos()
-                newPlanet = planet(pos1[0], -pos1[1]+height, default_mass, default_diameter, default_color)
+                # ref: pygame.draw.circle(disp, self.color, (((self.x + self.dx - width/2) * zoom) + width/2, ((height - self.y + self.dy - height/2) * zoom) + height/2), self.d * zoom, 0)
+                newPlanet = planet(((pos1[0] - width/2) / zoom) + width/2, (((-pos1[1] + height) - height/2) / zoom) + height/2, default_mass, default_diameter, default_color)
                 planets.append(newPlanet)
                 drag = False
             if event.key == pygame.K_p:
@@ -277,17 +284,16 @@ while state:
             if event.key == pygame.K_f:
                 if not focused:
                     for p in planets:
-                        px = p.x - p.d
-                        py = p.y - p.d
-                        w = p.d*2
-                        h = p.d*2
+                        px = ((p.x - width/2) * zoom) + width/2 - p.d * zoom
+                        py = ((-p.y+height - height/2) * zoom) + height/2 - p.d * zoom
+                        w = p.d*zoom*2
+                        h = p.d*zoom*2
                         p_rect = pygame.Rect(px, py, w, h)
                         print(p_rect)
-                        if p_rect.collidepoint((pygame.mouse.get_pos()[0], -pygame.mouse.get_pos()[1] + height)):
+                        if p_rect.collidepoint(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]):
                             print(f"Focus: {p}")
                             focused = True
                             focusobj = p
-                    print(pygame.mouse.get_pos()[0] + totalx, -pygame.mouse.get_pos()[1] + height + totaly)
                 else:
                     focused = False
                 #planets.append(planet(pygame.mouse.get_pos()[0], -pygame.mouse.get_pos()[1] + height, 10, 10))
@@ -312,7 +318,8 @@ while state:
                 settings = not settings
             elif not settings:
                 drag = True
-                pos1 = pygame.mouse.get_pos()
+                position1 = pygame.mouse.get_pos()
+                pos1 = ((pygame.mouse.get_pos()[0] - width/2) / zoom) + width/2, ((pygame.mouse.get_pos()[1] - height/2) / zoom) + height/2
             if option_strength_minus_rect.collidepoint(pygame.mouse.get_pos()) and strenght > 0:
                 strenght -= 1
                 option_strength_val = pygame.font.SysFont("Arial", 25).render(str(strenght)+"%", True, (255, 255, 255))
@@ -351,15 +358,14 @@ while state:
             default_color=colors[colorindex]
             
         if event.type == pygame.MOUSEBUTTONUP:
-            drag = False
-            if not (1268 < pygame.mouse.get_pos()[0] < width and 88 < pygame.mouse.get_pos()[1] < 231):
+            if not (1268 < pygame.mouse.get_pos()[0] < width and 88 < pygame.mouse.get_pos()[1] < 231) and drag:
                 if not settings:
-                    pos2 = pygame.mouse.get_pos()
+                    pos2 = ((pygame.mouse.get_pos()[0] - width/2) / zoom) + width/2, ((pygame.mouse.get_pos()[1] - height/2) / zoom) + height/2 # megölöm magam
                     newPlanet = planet(pos1[0], -pos1[1]+height, default_mass, default_diameter, default_color)
                     planets.append(newPlanet)
                     newPlanet.dx = ((pos1[0] - pos2[0]) / 30) * default_strength
                     newPlanet.dy = ((pos2[1] - pos1[1]) / 30) * default_strength
-
+            drag = False
 
     keys = pygame.key.get_pressed()
 
@@ -469,21 +475,45 @@ while state:
                 i[1] -= 0.25
             totaly -= 1
 
+    if keys[pygame.K_t]:
+        zoom += 0.01 / zoom
+    if keys[pygame.K_g]:
+        zoom -= zoom / 100
+
     #calculating part
-    for rp in planets:
-        for p in planets:
-            if rp != p:
-                comp(rp,p)
-            if rp not in planets:
-                break
+    if not pause:
+        for rp in planets:
+            for p in planets:
+                if rp != p:
+                    comp(rp,p)
+                if rp not in planets:
+                    break
 
     #drawing part
     if c == 0:
         disp.fill((0, 0, 0))
-        for i in stars:
-            pygame.draw.circle(disp, (170, 170, 170), (i[0], i[1]), 1)
+        if keys[pygame.K_i]:
+            disp.blit(clearinfo, clearinfo_rect)
+            disp.blit(disableinfo, disableinfo_rect)
+            disp.blit(resetinfo, resetinfo_rect)
+            disp.blit(pauseinfo, pauseinfo_rect)
+            disp.blit(focusinfo, focusinfo_rect)
+            disp.blit(zoominfo, zoominfo_rect)
+            disp.blit(moveinfo, moveinfo_rect)
+        else:
+            disp.blit(infoinfo, infoinfo_rect)
+
+        if -9 < zoom:
+            for i in stars:
+                pygame.draw.circle(disp, (170, 170, 170), ((((i[0] - width/2) * ((zoom/10)+0.9))) + width/2, (((i[1] - height/2) * ((zoom/10)+0.9))) + height/2), 1)
         for dot in points:
-            pygame.draw.circle(disp, (dot[2]), (dot[0], dot[1]), 1)
+            if 0 < zoom <= 1:
+                pygame.draw.circle(disp, (dot[2]), (((dot[0] - width/2) * zoom) + width/2, (((dot[1] - height/2) * zoom) + height/2)), 1)
+            elif 1 < zoom:
+                pygame.draw.circle(disp, (dot[2]), (((dot[0] - width/2) * zoom) + width/2, (((dot[1] - height/2) * zoom) + height/2)), 1 * zoom)
+            else:
+                pass
+
         eorbittxt = pygame.font.SysFont("Arial", 30).render("Föld ciklusok: "+str(earthorbits/10), True, (255, 255, 255))
         try:
             if earth in planets:
@@ -493,17 +523,14 @@ while state:
                 disp.blit(morbitstxt, morbitstxt_rect)
         except:
             pass
-        disp.blit(clearinfo, clearinfo_rect)
-        disp.blit(disableinfo, disableinfo_rect)
-        disp.blit(resetinfo, resetinfo_rect)
-        disp.blit(pauseinfo, pauseinfo_rect)
-        disp.blit(focusinfo, focusinfo_rect)
+        
         option_color = pygame.font.SysFont("Arial", 25).render("Szín", True, default_color)
         if drag:
             position2 = pygame.mouse.get_pos()
-            pygame.draw.line(disp, (255, 255, 255), pos1, position2, 1)
+            pygame.draw.line(disp, (255, 255, 255), position1, position2, 1)
         if settings:
             disp.blit(create_rect(200, 300, 5, (0, 0, 0), (255, 255, 255)), (width-200, 88))
+            disp.blit(create_rect(32, 148, 5, (0, 0, 0), (100, 100, 100)), (width-31, 88))
             disp.blit(option_title, option_title_rect)
             disp.blit(option_strength, option_strength_rect)
             disp.blit(option_strength_val, option_strength_val_rect)
@@ -523,12 +550,16 @@ while state:
         else:
             disp.blit(create_rect(32, 148, 5, (0, 0, 0), (255, 255, 255)), (width-31, 88))
             pygame.draw.line(disp, (255, 255, 255), (width-11, 109), (width-11, 224), 3)
-
-        for g in planets:
-            g.draw()
+        if not pause:
+            for g in planets:
+                g.draw()
+        else:
+            for g in planets:
+                pygame.draw.circle(disp, g.color, (((g.x - width/2) * zoom) + width/2, ((height - g.y - height/2) * zoom) + height/2), g.d * zoom, 0)
     
     for i in planets:
         if toggledots and not pause and c2 == 0:
+            # ref: pygame.draw.circle(disp, self.color, (((self.x + self.dx - width/2) * zoom) + width/2, ((height - self.y + self.dy - height/2) * zoom) + height/2), self.d * zoom, 0)
             dotx, doty = i.x, -(i.y)+height
             points.append([dotx, doty, i.color])
 
