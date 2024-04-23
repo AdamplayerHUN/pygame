@@ -91,9 +91,9 @@ pg.display.set_caption("Spaceshooter")
 clock = pg.time.Clock()
 
 # Load images
-ship01 = pg.image.load("assets/img/ship-01.png")
+ship01 = pg.image.load("assets/img/ship-01.png").convert()
 ship01.set_colorkey((0, 0, 0))
-shipms = pg.image.load("assets/img/ship-ms.png")
+shipms = pg.image.load("assets/img/ship-ms.png").convert()
 shipms.set_colorkey((0, 0, 0))
 
 
@@ -694,9 +694,31 @@ while load:
     
 mainloop = True
 while mainloop:
-    frame = 30000
+    frame = 0
+    creditstart = 0
+    credittexts = [
+        "Skyjade production\nVersion 1.0 Alpha",
+        "Game design by:\nSebestyén Garam",
+        "Programming by:\nÁdám Vajk",
+        "Graphics by:\nSebestyén Garam",
+        "Music by:\nÁdám Vajk",
+        "Sound effects by:\nBalázs Horváth",
+        "Special thanks to:\n@Pearoo",
+        "Written in Python using Pygame",
+    ]
+    creditstart1 = random.randint(300, h-300)
+    creditstart2 = random.randint(300, h-300)
+    creditstart3 = random.randint(300, h-300)
+    creditstart4 = random.randint(300, h-300)
+    creditstart5 = random.randint(300, h-300)
+    creditstart6 = random.randint(300, h-300)
+    creditstart7 = random.randint(300, h-300)
+    creditstart8 = random.randint(300, h-300)
+
     menu = True
     show = True
+    showcredits = False
+    alpha = 255
     ships = []
     while menu:
         if mixer.Channel(3).get_busy() == False:
@@ -704,30 +726,20 @@ while mainloop:
         frame += 1
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                pg.quit()
+                pg.quit() 
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    pg.quit()
-                if event.key == pg.K_RETURN:
+                if event.key == pg.K_ESCAPE and showcredits:
+                    showcredits = False
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if pg.Rect(100, 300, starttext.get_width(), starttext.get_height()).collidepoint(pg.mouse.get_pos()):
                     menu = False
+                if pg.Rect(100, 400, creditstext.get_width(), creditstext.get_height()).collidepoint(pg.mouse.get_pos()):
+                    showcredits = True
+                    creditstart = 0
+                if pg.Rect(100, 500, exittext.get_width(), exittext.get_height()).collidepoint(pg.mouse.get_pos()):
+                    pg.quit()
         
         screen.fill((0, 0, 0))
-        title = titlefont.render("Spaceshooter", True, (255, 255, 255))
-        subtitle = font.render("Press Enter to start", True, (255, 255, 255))
-        exittitle = font.render("(or press ESC to exit)", True, (255, 255, 255))
-        credit = font.render("Skyjade production - V1.0 Alpha", True, (50, 50, 50))
-        screen.blit(title, title.get_rect(center=(w/2, h/2-200)))
-        screen.blit(exittitle, exittitle.get_rect(center=(w/2, h-100)))
-        screen.blit(credit, credit.get_rect(topleft=(0, h-50)))
-        for star in stars:
-            x, y = star
-            distance = math.sqrt((player.x - x) ** 2 + (player.y - y) ** 2)
-            if distance < 1000:
-                pg.draw.circle(screen, (255, 255, 255), (x + player.camx, y + player.camy), 1)
-        if frame % 10 == 0:
-            show = not show
-        if show:
-            screen.blit(subtitle, subtitle.get_rect(center=(w/2, h/2)))
 
         if len(ships) < 3:
             if frame % 120 == 0:
@@ -740,12 +752,76 @@ while mainloop:
                 newship = pg.transform.rotate(ship01, -90)
                 screen.blit(newship, ship01.get_rect(center=(x, y)))
                 ships[ships.index(ship)] = (x+5, y)
+
+        title = titlefont.render("Spaceshooter", True, (255, 255, 255))
+        starttext = bigfont.render("Start", True, (255, 255, 255))
+        creditstext = bigfont.render("Credits", True, (255, 255, 255))
+        exittext = bigfont.render("Exit", True, (255, 255, 255))
+        credittext = font.render("Skyjade production - V1.0 Alpha", True, (50, 50, 50))
+
+        if showcredits:
+            creditstart += 2
+            if alpha > 0:
+                alpha -= 3
+            starttext.set_alpha(alpha)
+            creditstext.set_alpha(alpha)
+            exittext.set_alpha(alpha)
+
+            if creditstart > 100:
+                screen.blit(font.render(credittexts[0], True, (255, 255, 255)), (creditstart-600, creditstart1))
+            if creditstart > 400:
+                screen.blit(font.render(credittexts[1], True, (255, 255, 255)), (creditstart-1200, creditstart2))
+            if creditstart > 700:
+                screen.blit(font.render(credittexts[2], True, (255, 255, 255)), (creditstart-1800, creditstart3))
+            if creditstart > 1000:
+                screen.blit(font.render(credittexts[3], True, (255, 255, 255)), (creditstart-2400, creditstart4))
+            if creditstart > 1300:
+                screen.blit(font.render(credittexts[4], True, (255, 255, 255)), (creditstart-3000, creditstart5))
+            if creditstart > 1600:
+                screen.blit(font.render(credittexts[5], True, (255, 255, 255)), (creditstart-3600, creditstart6))
+            if creditstart > 1900:
+                screen.blit(font.render(credittexts[6], True, (255, 255, 255)), (creditstart-4200, creditstart7))
+            if creditstart > 2300:
+                screen.blit(font.render(credittexts[7], True, (255, 255, 255)), (creditstart-4800, creditstart8))
             
+            if creditstart > 6500:
+                showcredits = False
+
+        else:
+            if alpha < 255:
+                alpha += 3
+            starttext.set_alpha(alpha)
+            creditstext.set_alpha(alpha)
+            exittext.set_alpha(alpha)
+
+        screen.blit(title, title.get_rect(topleft=(100, 100)))
+        screen.blit(starttext, starttext.get_rect(topleft=(100, 300)))
+        screen.blit(creditstext, creditstext.get_rect(topleft=(100, 400)))
+        screen.blit(exittext, exittext.get_rect(topleft=(100, 500)))
+        screen.blit(credittext, credittext.get_rect(topleft=(0, h-50)))
+        for star in stars:
+            x, y = star
+            distance = math.sqrt((player.x - x) ** 2 + (player.y - y) ** 2)
+            if distance < 1000:
+                pg.draw.circle(screen, (255, 255, 255), (x + player.camx, y + player.camy), 1)
+        if frame % 5 == 0:
+            show = not show
+        if show and not showcredits:
+            if starttext.get_rect(topleft=(100, 300)).collidepoint(pg.mouse.get_pos()):
+                screen.blit(bigfont.render("<", True, (255, 255, 255)), (starttext.get_width()+120, 300))
+            if creditstext.get_rect(topleft=(100, 400)).collidepoint(pg.mouse.get_pos()):
+                screen.blit(bigfont.render("<", True, (255, 255, 255)), (creditstext.get_width()+120, 400))
+            if exittext.get_rect(topleft=(100, 500)).collidepoint(pg.mouse.get_pos()):
+                screen.blit(bigfont.render("<", True, (255, 255, 255)), (exittext.get_width()+120, 500))
+        
+        
+
         pg.display.flip()
         clock.tick(60)
 
     main = True
-    frame = 30000
+    pause = False
+    frame = 0
     enemies, weapon1charge, weapon2charge = reset()
     while main:
         if mixer.Channel(3).get_busy() == False:
@@ -761,7 +837,7 @@ while mainloop:
                 if event.key == pg.K_r:
                     rcs = not rcs
                 if event.key == pg.K_ESCAPE:
-                    main = False
+                    pause = not pause
                 if event.key == pg.K_f:
                     autotarget = False
                     if len(enemies) > 0:
@@ -856,11 +932,12 @@ while mainloop:
         if weapon2charge < 100 and not laser and frame % 3 == 0:
             weapon2charge += 1 / (player.modules["weapon2"]/100)
 
-        for item in projectiles:
-            item.draw()
-            item.ttl -= 1
-            if item.ttl == 0:
-                projectiles.remove(item)
+        if not pause:
+            for item in projectiles:
+                item.draw()
+                item.ttl -= 1
+                if item.ttl == 0:
+                    projectiles.remove(item)
 
         if rcs:
             rcstext = font.render("RCS: ON", True, (200, 200, 200))
@@ -943,14 +1020,20 @@ while mainloop:
         screen.blit(weapon2text, weapon2text_rect)
         screen.blit(weapon2chargelabel, weapon2chargelabel_rect)
 
-        for enemy in enemies:
-            enemy.draw()
-            if tick:
-                enemy.tick()
-                if frame % 30 == 0 and enemy.type == 1:
-                    enemy.shoot()
-                elif frame % 10 == 0 and enemy.type == 2:
-                    enemy.shoot()
+        if not pause:
+            for enemy in enemies:
+                if enemy.health < 0:
+                    enemies.remove(enemy)
+                    target == None
+                    pass
+
+                enemy.draw()
+                if tick:
+                    enemy.tick()
+                    if frame % 30 == 0 and enemy.type == 1:
+                        enemy.shoot()
+                    elif frame % 10 == 0 and enemy.type == 2:
+                        enemy.shoot()
                     
             if frame % 60 == 0:
                 if enemy.health < enemy.maxhealth:
@@ -959,15 +1042,14 @@ while mainloop:
                     if enemy.shield[shield][0] < enemy.maxshield:
                         enemy.shield[shield][0] += 1 * (enemy.modules["shieldmodule"]/100)
 
-            if enemy.health < 0:
-                enemies.remove(enemy)
-                target == None
+            
 
         if autotarget:
             target = getClosestEnemy()
-        if player.draw() == True:
-            impact = True
-            currentframe = frame
+        if not pause:
+            if player.draw() == True:
+                impact = True
+                currentframe = frame
 
         if impact and frame - currentframe < 300:
             if mixer.Channel(7).get_busy() == False:
@@ -1050,7 +1132,11 @@ while mainloop:
             screen.blit(font.render(f"Hull: {round(target.health, 0)}%", True, (255, 255, 255)), (crosshair_center[0]+70, crosshair_center[1]+30))
             screen.blit(font.render(f"D: {round(target.playerdistance, 0)}", True, (255, 255, 255)), (crosshair_center[0]+70, crosshair_center[1]+60))
 
-            targeticon = pg.transform.rotate(ship01, 0)
+            if target.type == 1:
+                targeticon = pg.transform.rotate(ship01, 0)
+            elif target.type == 2:
+                targeticon = pg.transform.rotate(shipms, 0)
+                targeticon = pg.transform.scale(targeticon, (30, 60))
             screen.blit(targeticon, targeticon.get_rect(center=(w-440, h-130)))
             #target shield lines
             for item in target.shield:
@@ -1165,7 +1251,13 @@ while mainloop:
     end_y = 0
     frame = 0
     lines = []
+    mixer.Channel(0).stop()
+    mixer.Channel(1).stop()
     mixer.Channel(2).stop()
+    mixer.Channel(3).stop()
+    mixer.Channel(4).stop()
+    mixer.Channel(5).stop()
+    mixer.Channel(6).stop()
     mixer.Channel(7).stop()
 
     for i in range(60):
@@ -1182,7 +1274,6 @@ while mainloop:
     screen.blit(explosion, (w/2-100, h/2-100))
     pg.display.update()
     while gameover:
-        screen.blit(surface, (0, 0))
         frame += 1
         screen.fill((0, 0, 0))
         for event in pg.event.get():
@@ -1206,9 +1297,10 @@ while mainloop:
         if player.health < 0:
             screen.blit(font.render("Hull destroyed", True, (255, 0, 0)), (w/2-100, h/2-250))
         elif player.modules["fueltank"] < 0:
-            screen.blit(font.render("Fuel tank exploded", True, (255, 0, 0)), (w/2-150, h/2-250))
+            screen.blit(font.render("Fuel tank exploded", True, (255, 0, 0)), (w/2-180, h/2-250))
         
-        screen.blit(font.render(f"Score: {round(gameframe/30, 0)}", True, (255, 0, 0)), (w/2-100, h/2-200))
+        a = font.render(f"Score: {round(gameframe/30, 0)}", True, (255, 0, 0))
+        screen.blit(a, a.get_rect(center=(w/2, h/2-200)))
         
         for line in lines:
             line[0] += line[4]
